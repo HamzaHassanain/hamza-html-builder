@@ -141,7 +141,3 @@ Thumbs.db
 # Log files
 *.log
 
-# Project specific (customize as needed)
-# Add your specific executable names here
-test_client
-test_server
