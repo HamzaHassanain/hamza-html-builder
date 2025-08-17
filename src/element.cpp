@@ -4,7 +4,7 @@
 #include <document_parser.hpp>
 namespace hamza_html_builder
 {
-    element::element() : tag("div") {}
+    element::element() : tag() {}
 
     element::element(const std::string &tag) : tag(tag) {}
 
@@ -69,6 +69,19 @@ namespace hamza_html_builder
         {
             return text_content; // If the tag is "NO_TAG", return only the text content
         }
+
+        if (tag.empty())
+        {
+            std::string result;
+
+            for (const auto &child : children)
+            {
+                result += child->to_string();
+            }
+
+            return result;
+        }
+
         std::string result = "<" + tag;
 
         for (const auto &attr : attributes)
