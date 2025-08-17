@@ -1,11 +1,9 @@
 #include <bits/stdc++.h>
-
+#include <document_parser.hpp>
 using namespace std;
-
+using namespace hamza_html_builder;
 int main()
 {
-
-    // read the file tmp.html
 
     string path = "tmp.html";
     string content;
@@ -20,7 +18,40 @@ int main()
             content = buffer.str();
         }
 
-        cout << content << endl;
+        /*
+
+         title,subtitle,heroTitle,heroDescription,email,github,linkedin
+        */
+
+        std::map<std::string, std::string> params = {
+            {"title", "My Website"},
+            {"subtitle", "Welcome to my website"},
+            {"heroTitle", "Welcome to My Website"},
+            {"heroDescription", "This is a sample description for the hero section."},
+            {"contactEmail", "contact@example.com"},
+            {"github", "https://github.com/username"},
+            {"linkedin", "https://linkedin.com/in/username"},
+            {"email", "contact@example.com"}
+
+        };
+        auto elements = parse_html_string(content);
+        function<void(const vector<shared_ptr<element>> &, int)> print_recursively;
+        print_recursively = [&](const vector<shared_ptr<element>> &elements, int depth)
+        {
+            for (const auto &element : elements)
+            {
+                cout << string(depth * 2, ' ') << "Attributes: ";
+                for (const auto &[key, value] : element->get_attributes())
+                {
+                    cout << key << " = " << parse_html_with_params(value, params) << ", ";
+                }
+                cout << endl;
+
+                // Recursively print children
+                print_recursively(element->get_children(), depth + 1);
+            }
+        };
+        print_recursively(elements, 0);
     }
     catch (const exception &e)
     {
