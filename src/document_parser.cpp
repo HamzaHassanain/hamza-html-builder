@@ -280,6 +280,10 @@ namespace hamza_html_builder
                         size_t old_end = i;
                         std::string tag = read_tag(html, i);
                         tag = fix_tag(tag);
+                        if (is_self_closing_tag(tag))
+                        {
+                            continue;
+                        }
                         if (is_closing_tag(tag))
                         {
                             current_tag_name = tag.substr(1); // Remove the leading '/'
