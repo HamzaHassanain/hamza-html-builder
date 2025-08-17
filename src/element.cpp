@@ -65,10 +65,15 @@ namespace hamza_html_builder
 
     std::string element::to_string() const
     {
+        if (tag == "NO_TAG")
+        {
+            return text_content; // If the tag is "NO_TAG", return only the text content
+        }
         std::string result = "<" + tag;
+
         for (const auto &attr : attributes)
         {
-            if (attr.second.empty() == 0)
+            if (attr.second.empty())
             {
                 result += " " + attr.first;
             }

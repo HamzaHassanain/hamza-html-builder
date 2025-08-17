@@ -3,7 +3,7 @@
 #include <element.hpp>
 #include <doctype_element.hpp>
 #include <self_closing_element.hpp>
-
+#include <iostream>
 #include <algorithm>
 #include <map>
 #include <stdexcept>
@@ -11,6 +11,10 @@
 #include <sstream>
 #include <set>
 #include <cctype>
+
+#include <thread>
+#include <chrono>
+
 namespace hamza_html_builder
 {
     bool has_doctype(const std::string &html)
@@ -87,7 +91,10 @@ namespace hamza_html_builder
 
         return result;
     }
-
+    void remove_all_line_breaks(std::string &html)
+    {
+        html.erase(std::remove(html.begin(), html.end(), '\n'), html.end());
+    }
     std::map<std::string, std::string> parse_attributes(std::string &attr_string)
     {
         std::map<std::string, std::string> attributes;
@@ -146,6 +153,10 @@ namespace hamza_html_builder
             }
         }
 
+        attributes.erase("");
+        attributes.erase("/");
+        attributes.erase(" ");
+
         return attributes;
     }
 
@@ -163,7 +174,10 @@ namespace hamza_html_builder
         std::transform(lower_tag.begin(), lower_tag.end(), lower_tag.begin(), ::tolower);
         return self_closing_tags.find(lower_tag) != self_closing_tags.end();
     }
-
+    bool is_closing_tag(std::string &tag)
+    {
+        return tag.size() > 1 && tag[0] == '/' && tag[1] != '/';
+    }
     std::pair<std::string, std::string> extract_tag_and_attributes(std::string &tag_content)
     {
         size_t space_pos = tag_content.find(' ');
@@ -187,177 +201,135 @@ namespace hamza_html_builder
             html.erase(pos, end_pos - pos + 3);
         }
     }
+    std::string read_tag(const std::string &html, size_t &pos)
+    {
+        size_t start = pos + 1;
+        size_t end = html.find('>', start);
+        if (end == std::string::npos)
+        {
+            throw std::runtime_error("Malformed HTML: no closing '>' found");
+        }
+
+        std::string tag = html.substr(start, end - start);
+        pos = end; // Update position to the closing '>'
+        return tag;
+    }
+    std::string fix_tag(std::string &tag_with_atrs)
+    {
+        std::string tag_name;
+        for (size_t i = 0; i < tag_with_atrs.size(); ++i)
+        {
+            if (tag_with_atrs[i] == ' ' || tag_with_atrs[i] == '\t' || tag_with_atrs[i] == '\n')
+            {
+                tag_name = tag_with_atrs.substr(0, i);
+                return tag_name;
+            }
+        }
+
+        return tag_with_atrs;
+    }
+    std::vector<std::shared_ptr<element>> solve_recursive(std::string &html)
+    {
+        std::vector<std::shared_ptr<element>> result;
+
+        size_t pos_of_first_opening_tag = html.find('<');
+        if (pos_of_first_opening_tag == std::string::npos)
+        {
+            auto text_element = std::make_shared<element>("NO_TAG", html);
+            result.push_back(text_element);
+            return result;
+        }
+
+        do
+        {
+            std::string tag_content;
+            for (size_t i = pos_of_first_opening_tag + 1; i < html.size(); ++i)
+            {
+                if (html[i] == '>')
+                {
+                    tag_content = html.substr(pos_of_first_opening_tag + 1, i - pos_of_first_opening_tag - 1);
+                    break;
+                }
+            }
+            size_t end_of_body = std::string::npos;
+
+            auto [tag_name, attributes] = extract_tag_and_attributes(tag_content);
+            tag_name = trim(tag_name);
+            attributes = trim(attributes);
+            auto parsed_attributes = parse_attributes(attributes);
+            if (is_self_closing_tag(tag_name))
+            {
+                auto elm = std::make_shared<self_closing_element>(tag_name, parsed_attributes);
+                result.push_back(elm);
+                end_of_body = pos_of_first_opening_tag + tag_content.size() + 1; // +1 for '>'
+            }
+            else
+            {
+                auto opening_element = std::make_shared<element>(tag_name, parsed_attributes);
+
+                // find it's end
+                size_t body_content_begin = pos_of_first_opening_tag + tag_content.size() + 2; // +2 for '<' and '>'
+                std::stack<std::string> tag_stack;
+                tag_stack.push(tag_name);
+                std::string body_content;
+                std::string current_tag_name;
+                for (size_t i = body_content_begin; i < html.size(); ++i)
+                {
+                    if (html[i] == '<')
+                    {
+                        size_t old_end = i;
+                        std::string tag = read_tag(html, i);
+                        tag = fix_tag(tag);
+                        if (is_closing_tag(tag))
+                        {
+                            current_tag_name = tag.substr(1); // Remove the leading '/'
+                            if (!tag_stack.empty() && tag_stack.top() == current_tag_name)
+                            {
+                                tag_stack.pop();
+                                if (tag_stack.empty())
+                                {
+                                    body_content = html.substr(body_content_begin, old_end - body_content_begin);
+                                    end_of_body = i;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                throw std::runtime_error("Unmatched closing tag: " + current_tag_name);
+                            }
+                        }
+                        else
+                        {
+                            tag_stack.push((tag));
+                        }
+                    }
+                }
+
+                auto res = solve_recursive(body_content);
+
+                for (const auto &child : res)
+                {
+                    opening_element->add_child(child);
+                }
+                result.push_back(opening_element);
+            }
+            pos_of_first_opening_tag = html.find('<', end_of_body);
+        } while (pos_of_first_opening_tag != std::string::npos);
+        return result;
+    }
 
     std::vector<std::shared_ptr<element>> parse_html_string(std::string &html)
     {
 
         remove_all_comments(html);
         transform_tags_to_lower_case(html);
+        remove_all_line_breaks(html);
         std::string doctype;
         if (has_doctype(html))
         {
             doctype = extract_doctype(html);
         }
         std::vector<std::shared_ptr<element>> result;
-        std::stack<std::shared_ptr<element>> element_stack;
-
-        size_t pos = 0;
-
-        while (pos < html.length())
-        {
-            size_t tag_start = html.find('<', pos);
-
-            if (tag_start != pos && tag_start != std::string::npos)
-            {
-                std::string text = html.substr(pos, tag_start - pos);
-                text = trim(text);
-
-                if (!text.empty())
-                {
-                    text = decode_html_entities(text);
-
-                    if (!element_stack.empty())
-                    {
-                        std::string current_text = element_stack.top()->get_text_content();
-                        if (!current_text.empty())
-                            current_text += " ";
-                        element_stack.top()->set_text_content(current_text + text);
-                    }
-                    else
-                    {
-                        auto text_element = std::make_shared<element>("span", text);
-                        result.push_back(text_element);
-                    }
-                }
-            }
-
-            if (tag_start == std::string::npos)
-            {
-                if (pos < html.length())
-                {
-                    std::string text = html.substr(pos);
-                    text = trim(text);
-
-                    if (!text.empty())
-                    {
-                        text = decode_html_entities(text);
-
-                        if (!element_stack.empty())
-                        {
-                            std::string current_text = element_stack.top()->get_text_content();
-                            if (!current_text.empty())
-                                current_text += " ";
-                            element_stack.top()->set_text_content(current_text + text);
-                        }
-                        else
-                        {
-                            auto text_element = std::make_shared<element>("span", text);
-                            result.push_back(text_element);
-                        }
-                    }
-                }
-                break;
-            }
-
-            size_t tag_end = html.find('>', tag_start);
-            if (tag_end == std::string::npos)
-            {
-                throw std::runtime_error("Malformed HTML: no closing bracket found");
-            }
-
-            std::string tag_content = html.substr(tag_start + 1, tag_end - tag_start - 1);
-            tag_content = trim(tag_content);
-
-            if (tag_content.empty())
-            {
-                pos = tag_end + 1;
-                continue;
-            }
-
-            if (tag_content[0] == '/')
-            {
-                std::string closing_tag = tag_content.substr(1);
-                closing_tag = trim(closing_tag);
-                std::transform(closing_tag.begin(), closing_tag.end(), closing_tag.begin(), ::tolower);
-
-                while (!element_stack.empty())
-                {
-                    auto current_element = element_stack.top();
-                    element_stack.pop();
-
-                    std::string current_tag = current_element->get_tag();
-                    std::transform(current_tag.begin(), current_tag.end(), current_tag.begin(), ::tolower);
-
-                    if (element_stack.empty())
-                    {
-                        result.push_back(current_element);
-                    }
-                    else
-                    {
-                        element_stack.top()->add_child(current_element);
-                    }
-
-                    if (current_tag == closing_tag)
-                        break;
-                }
-            }
-            else
-            {
-                bool is_self_closing = tag_content.back() == '/' || html.substr(tag_end - 1, 2) == "/>";
-
-                if (is_self_closing && tag_content.back() == '/')
-                {
-                    tag_content = tag_content.substr(0, tag_content.length() - 1);
-                    tag_content = trim(tag_content);
-                }
-
-                auto tag_info = extract_tag_and_attributes(tag_content);
-                std::string tag_name = tag_info.first;
-                std::string attr_string = tag_info.second;
-
-                std::transform(tag_name.begin(), tag_name.end(), tag_name.begin(), ::tolower);
-
-                std::map<std::string, std::string> attributes = parse_attributes(attr_string);
-
-                std::shared_ptr<element> new_element;
-
-                if (is_self_closing || is_self_closing_tag(tag_name))
-                {
-                    new_element = std::make_shared<self_closing_element>(tag_name, attributes);
-
-                    if (element_stack.empty())
-                    {
-                        result.push_back(new_element);
-                    }
-                    else
-                    {
-                        element_stack.top()->add_child(new_element);
-                    }
-                }
-                else
-                {
-                    new_element = std::make_shared<element>(tag_name, attributes);
-                    element_stack.push(new_element);
-                }
-            }
-
-            pos = tag_end + 1;
-        }
-
-        while (!element_stack.empty())
-        {
-            auto unclosed_element = element_stack.top();
-            element_stack.pop();
-
-            if (element_stack.empty())
-            {
-                result.push_back(unclosed_element);
-            }
-            else
-            {
-                element_stack.top()->add_child(unclosed_element);
-            }
-        }
 
         if (!doctype.empty())
         {
@@ -366,6 +338,11 @@ namespace hamza_html_builder
             std::shared_ptr<element> doctype_element_ptr = std::make_shared<doctype_element>(doctype);
             result.insert(result.begin(), doctype_element_ptr);
         }
+
+        auto solved = solve_recursive(html);
+
+        result.insert(result.end(), solved.begin(), solved.end());
+
         return result;
     }
 

@@ -42,8 +42,7 @@ int main()
             {
                 cout << string(depth * 2, ' ') << element->to_string() << endl;
 
-                // Recursively print children
-                print_recursively(element->get_children(), depth + 1);
+                // print_recursively(element->get_children(), depth + 1);
             }
         };
         print_recursively(elements, 0);
