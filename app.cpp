@@ -40,12 +40,7 @@ int main()
         {
             for (const auto &element : elements)
             {
-                cout << string(depth * 2, ' ') << "Attributes: ";
-                for (const auto &[key, value] : element->get_attributes())
-                {
-                    cout << key << " = " << parse_html_with_params(value, params) << ", ";
-                }
-                cout << endl;
+                cout << string(depth * 2, ' ') << element->to_string() << endl;
 
                 // Recursively print children
                 print_recursively(element->get_children(), depth + 1);

@@ -1,5 +1,7 @@
 #include <element.hpp>
 #include <stdexcept>
+#include <iostream>
+#include <document_parser.hpp>
 namespace hamza_html_builder
 {
     element::element() : tag("div") {}
@@ -27,8 +29,8 @@ namespace hamza_html_builder
 
     void element::set_text_content(const std::string &text_content, const std::map<std::string, std::string> &params)
     {
-        // still needs a string parser,
-        throw std::runtime_error("String parsing not implemented");
+
+        this->text_content = parse_html_with_params(text_content, params);
     }
 
     std::string element::get_tag() const
@@ -66,13 +68,12 @@ namespace hamza_html_builder
         std::string result = "<" + tag;
         for (const auto &attr : attributes)
         {
-            if (!attr.second.empty())
+            if (attr.second.empty() == 0)
             {
-                result += " " + attr.first + "\"";
+                result += " " + attr.first;
             }
             else
             {
-
                 result += " " + attr.first + "=\"" + attr.second + "\"";
             }
         }

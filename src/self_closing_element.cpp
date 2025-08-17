@@ -13,7 +13,14 @@ namespace hamza_html_builder
         std::string result = "<" + get_tag();
         for (const auto &attr : get_attributes())
         {
-            result += " " + attr.first + "=\"" + attr.second + "\"";
+            if (attr.second.empty())
+            {
+                result += " " + attr.first;
+            }
+            else
+            {
+                result += " " + attr.first + "=\"" + attr.second + "\"";
+            }
         }
         result += " />";
         return result;

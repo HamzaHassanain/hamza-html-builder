@@ -94,7 +94,7 @@ namespace hamza_html_builder
 
         if (attr_string.empty())
             return attributes;
-
+        attr_string = trim(attr_string);
         std::string current = "";
         bool did_open_an_attribute = false;
 
@@ -116,6 +116,8 @@ namespace hamza_html_builder
                 if (did_open_an_attribute)
                 {
                     did_open_an_attribute = false;
+                    current.erase(current.begin());
+                    current.pop_back();
                     attributes[current_key] = current;
                     current = "";
                     current_key = "";
