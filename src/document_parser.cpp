@@ -50,6 +50,7 @@ namespace hamza_html_builder
             size_t __end_pos = html.find(' ', pos + 1);
             if (__end_pos == std::string::npos)
                 __end_pos = end_pos;
+            __end_pos = std::min(__end_pos, end_pos);
 
             std::string tag = html.substr(pos + 1, __end_pos - pos - 1);
             std::transform(tag.begin(), tag.end(), tag.begin(), ::tolower);

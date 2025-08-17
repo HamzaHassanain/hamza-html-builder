@@ -40,7 +40,7 @@ int main()
         {
             for (const auto &element : elements)
             {
-                cout << string(depth * 2, ' ') << element->to_string() << endl;
+                // cout << string(depth * 2, ' ') << element->to_string() << endl;
 
                 // print_recursively(element->get_children(), depth + 1);
             }
