@@ -12,6 +12,7 @@ namespace hamza_html_builder
     public:
         document(const std::string &doctype = "html")
         {
+            this->doctype = doctype;
             root = std::make_shared<element>("html");
         }
         std::string to_string() const
