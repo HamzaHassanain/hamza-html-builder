@@ -21,6 +21,13 @@ namespace hamza_html_builder
             result += root->to_string();
             return result;
         }
+        void add_child(std::shared_ptr<element> elem)
+        {
+            if (elem)
+            {
+                root->add_child(elem);
+            }
+        }
         ~document() = default;
     };
 
