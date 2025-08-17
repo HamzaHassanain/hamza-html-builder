@@ -22,6 +22,6 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 
 
-# add_executable(  builder app.cpp ${SRC_FILES})
+# add_executable(  html_builder app.cpp ${SRC_FILES})
 
-add_library(builder STATIC ${SRC_FILES})
+add_library(html_builder STATIC ${SRC_FILES})
