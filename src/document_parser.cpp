@@ -229,6 +229,11 @@ namespace hamza_html_builder
 
         return tag_with_atrs;
     }
+
+    /*
+    @CAUTION
+    This function runs in O(n*n) where n is the length of the html string, that to say it is too slow, and should be optimized.
+    */
     std::vector<std::shared_ptr<element>> solve_recursive(std::string &html)
     {
         std::vector<std::shared_ptr<element>> result;
