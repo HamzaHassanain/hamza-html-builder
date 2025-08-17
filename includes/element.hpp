@@ -25,6 +25,11 @@ namespace hamza_html_builder
         virtual void add_child(std::shared_ptr<element> child);
         virtual void set_text_content(const std::string &text_content);
         virtual void set_text_content(const std::string &text_content, const std::map<std::string, std::string> &params);
+
+        virtual void set_text_params_recursive(const std::map<std::string, std::string> &params);
+        virtual void set_text_params(const std::map<std::string, std::string> &params);
+        virtual element copy() const;
+
         virtual std::string get_text_content() const;
         virtual std::vector<std::shared_ptr<element>> get_children() const;
         virtual std::string to_string() const;

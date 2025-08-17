@@ -82,13 +82,37 @@ namespace hamza_html_builder
                 result += " " + attr.first + "=\"" + attr.second + "\"";
             }
         }
-        result += ">" + text_content;
+        result += ">\n" + text_content + "\n";
         for (const auto &child : children)
         {
             result += child->to_string();
         }
-        result += "</" + tag + ">";
+        result += "</" + tag + ">\n";
         return result;
+    }
+
+    void element::set_text_params_recursive(const std::map<std::string, std::string> &params)
+    {
+        set_text_params(params);
+        for (const auto &child : children)
+        {
+            child->set_text_params_recursive(params);
+        }
+    }
+    void element::set_text_params(const std::map<std::string, std::string> &params)
+    {
+        this->text_content = parse_html_with_params(text_content, params);
+    }
+
+    element element::copy() const
+    {
+        element copy = *this;
+        copy.children.clear();
+        for (const auto &child : children)
+        {
+            copy.add_child(std::make_shared<element>(child->copy()));
+        }
+        return copy;
     }
 
 };
