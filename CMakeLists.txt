@@ -45,7 +45,7 @@ endif()
 
 
 
-if(LOCAL_TEST AND LOCAL_TEST STREQUAL "1")
+if(HTML_LOCAL_TEST AND HTML_LOCAL_TEST STREQUAL "1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -fsanitize=address -g -O0")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -60,7 +60,7 @@ include_directories(${CMAKE_SOURCE_DIR}/includes)
 
 
 
-if(LOCAL_TEST AND LOCAL_TEST STREQUAL "1")
+if(HTML_LOCAL_TEST AND HTML_LOCAL_TEST STREQUAL "1")
     add_executable(  html_builder app.cpp ${SRC_FILES}   )
 else()
     add_library(html_builder STATIC ${SRC_FILES})
