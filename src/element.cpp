@@ -4,7 +4,7 @@
 #include <document_parser.hpp>
 namespace hamza_html_builder
 {
-    element::element() : tag() {}
+    element::element() : tag("text") {}
 
     element::element(const std::string &tag) : tag(tag) {}
 
@@ -25,12 +25,6 @@ namespace hamza_html_builder
     void element::set_text_content(const std::string &text_content)
     {
         this->text_content = text_content;
-    }
-
-    void element::set_text_content(const std::string &text_content, const std::map<std::string, std::string> &params)
-    {
-
-        this->text_content = parse_html_with_params(text_content, params);
     }
 
     std::string element::get_tag() const
@@ -65,22 +59,6 @@ namespace hamza_html_builder
 
     std::string element::to_string() const
     {
-        if (tag == "NO_TAG")
-        {
-            return text_content; // If the tag is "NO_TAG", return only the text content
-        }
-
-        if (tag.empty())
-        {
-            std::string result;
-
-            for (const auto &child : children)
-            {
-                result += child->to_string();
-            }
-
-            return result;
-        }
 
         std::string result = "<" + tag;
 
@@ -95,7 +73,7 @@ namespace hamza_html_builder
                 result += " " + attr.first + "=\"" + attr.second + "\"";
             }
         }
-        result += ">\n" + text_content + "\n";
+        result += ">" + text_content;
         for (const auto &child : children)
         {
             result += child->to_string();
@@ -104,17 +82,22 @@ namespace hamza_html_builder
         return result;
     }
 
-    void element::set_text_params_recursive(const std::map<std::string, std::string> &params)
+    void element::set_params_recursive(const std::map<std::string, std::string> &params)
     {
-        set_text_params(params);
+        set_params(params);
         for (const auto &child : children)
         {
-            child->set_text_params_recursive(params);
+            child->set_params_recursive(params);
         }
     }
-    void element::set_text_params(const std::map<std::string, std::string> &params)
+    void element::set_params(const std::map<std::string, std::string> &params)
     {
         this->text_content = parse_html_with_params(text_content, params);
+        // check atrs
+        for (auto &attr : attributes)
+        {
+            attr.second = parse_html_with_params(attr.second, params);
+        }
     }
 
     element element::copy() const

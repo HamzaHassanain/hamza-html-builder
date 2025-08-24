@@ -37,12 +37,6 @@ namespace hamza_html_builder
         return "";
     }
 
-    void self_closing_element::set_text_content(const std::string &text_content, const std::map<std::string, std::string> &params)
-    {
-        (void)text_content;
-        (void)params;
-        // throw std::runtime_error("Self-closing elements cannot have text content");
-    }
     void self_closing_element::set_text_content(const std::string &text_content)
     {
         (void)text_content;

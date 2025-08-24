@@ -14,6 +14,5 @@ namespace hamza_html_builder
         virtual std::vector<std::shared_ptr<element>> get_children() const override;
         virtual std::string get_text_content() const override;
         virtual void set_text_content(const std::string &text_content) override;
-        virtual void set_text_content(const std::string &text_content, const std::map<std::string, std::string> &params) override;
     };
 }

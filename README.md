@@ -388,7 +388,7 @@ std::vector<std::shared_ptr<element>> parse_html_string(std::string &html)
 2. **Tag Normalization:** Uses `transform_tags_to_lower_case()` for consistent tag handling
 3. **Line Break Cleanup:** Applies `remove_all_line_breaks()` for easier parsing
 4. **DOCTYPE Processing:** Checks and extracts DOCTYPE with `has_doctype()` and `extract_doctype()`
-5. **Recursive Parsing:** Delegates main parsing to `solve_recursive()`
+5. **Recursive Parsing:** Delegates main parsing to `solve_recursive()` which now uses optimized O(n) algorithm
 6. **Result Assembly:** Combines DOCTYPE and parsed elements into final result
 
 **Parameters:**
@@ -397,7 +397,7 @@ std::vector<std::shared_ptr<element>> parse_html_string(std::string &html)
 
 **Returns:** Vector of shared pointers to parsed elements
 
-**Complexity:** O(n²) due to the recursive parsing algorithm
+**Complexity:** O(n) - Optimized single-pass parsing algorithm
 
 Each function below contributes to the overall parsing process, but they are inaccessible from outside the library.
 
@@ -407,21 +407,58 @@ Each function below contributes to the overall parsing process, but they are ina
 std::vector<std::shared_ptr<element>> solve_recursive(std::string &html)
 ```
 
-**Purpose:** Core recursive parsing engine that builds the element tree structure.
+**Purpose:** Entry point for the optimized recursive parsing engine that builds the element tree structure.
 
 **Algorithm Overview:**
 
-1. **Base Case:** If no opening tags found, creates text element with remaining content
-2. **Tag Processing Loop:** For each opening tag found:
-   - Extracts tag content between `<` and `>`
-   - Separates tag name from attributes using `extract_tag_and_attributes()`
-   - Determines if tag is self-closing with `is_self_closing_tag()`
-   - **Self-Closing Elements:** Creates `self_closing_element` instance
-   - **Regular Elements:** Uses stack-based algorithm to find matching closing tag
-3. **Nested Content:** Recursively processes content between opening and closing tags
-4. **Stack Management:** Uses `std::stack<std::string>` to handle nested tag structures
+This function now delegates to `parse_html_optimized()` which implements a single-pass O(n) algorithm:
 
-**Performance Note:** The function has O(n²) complexity and is marked for optimization in future versions.
+1. **Single-Pass Processing:** Parses HTML from left to right in one pass
+2. **Position-Based Parsing:** Uses start/end positions to avoid string copying
+3. **Recursive Descent:** When an opening tag is found, recursively parses its content
+4. **Early Return:** Returns immediately when a closing tag is encountered
+5. **Text Handling:** Efficiently processes text content between tags
+6. **Memory Efficient:** Avoids unnecessary string allocations and copies
+
+**Performance Optimization:** Redesigned from O(n²) to O(n) complexity by eliminating:
+
+- Redundant string searching and copying
+- Stack-based nested tag matching (replaced with recursive function calls)
+- Multiple passes over the same content
+
+##### parse_html_optimized()
+
+```cpp
+std::pair<std::vector<std::shared_ptr<element>>, size_t> parse_html_optimized(const std::string &html, size_t start, size_t end)
+```
+
+**Purpose:** Core optimized parsing function that implements the O(n) single-pass algorithm.
+
+**Algorithm Details:**
+
+1. **Linear Traversal:** Processes characters from start to end position only once
+2. **Tag Detection:** Finds opening tags and determines their type (opening/closing/self-closing)
+3. **Text Extraction:** Collects text content between tags efficiently
+4. **Recursive Calls:** For opening tags, recursively parses content until matching closing tag
+5. **Position Tracking:** Returns the position after parsing for parent context
+6. **Error Handling:** Validates tag structure and reports mismatched tags
+
+**Key Optimizations:**
+
+- **No String Copying:** Works with positions in the original string
+- **Single Pass:** Each character is processed exactly once
+- **Recursive Descent:** Natural handling of nested structures
+- **Early Termination:** Returns immediately on closing tags
+
+**Parameters:**
+
+- `html` - The complete HTML string (not modified)
+- `start` - Starting position for parsing
+- `end` - Ending position for parsing
+
+**Returns:** Pair containing parsed elements and the position after parsing
+
+**Complexity:** O(n) where n is the length of the parsed section
 
 #### Utility Functions for HTML Processing
 
