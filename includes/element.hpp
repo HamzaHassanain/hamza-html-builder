@@ -5,7 +5,7 @@
 #include <memory>
 #include <map>
 
-namespace hamza_html_builder
+namespace hh_html_builder
 {
 
     /**

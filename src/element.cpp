@@ -4,7 +4,7 @@
 #include "../includes/document_parser.hpp"
 #include "../includes/element.hpp"
 
-namespace hamza_html_builder
+namespace hh_html_builder
 {
     element::element() : tag("text") {}
 

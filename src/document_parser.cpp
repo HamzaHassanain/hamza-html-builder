@@ -16,7 +16,7 @@
 #include "../includes/element.hpp"
 #include "../includes/doctype_element.hpp"
 #include "../includes/self_closing_element.hpp"
-namespace hamza_html_builder
+namespace hh_html_builder
 {
     /**
      * @brief Check if HTML string contains a DOCTYPE declaration.

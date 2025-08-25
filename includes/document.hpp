@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "element.hpp"
-namespace hamza_html_builder
+namespace hh_html_builder
 {
 
     class document

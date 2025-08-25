@@ -1,4 +1,4 @@
-# Hamza HTML Builder
+# hh HTML Builder
 
 A C++ library for programmatically building and manipulating HTML documents with support for template parameter substitution and HTML parsing.
 
@@ -8,7 +8,7 @@ A C++ library for programmatically building and manipulating HTML documents with
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [API Documentation](#api-documentation)
-  - [Namespace: hamza_html_builder](#namespace-hamza_html_builder)
+  - [Namespace: hh_html_builder](#namespace-hh_html_builder)
   - [Classes](#classes)
     - [element](#class-element)
     - [document](#class-document)
@@ -20,6 +20,81 @@ A C++ library for programmatically building and manipulating HTML documents with
 ## Overview
 
 The HTML Builder is a C++ library designed to simplify the creation and manipulation of HTML documents programmatically. It provides a clean object-oriented interface for building HTML elements, managing document structure, and substituting template parameters.
+
+## Quick Start
+
+### Using Git Submodules
+
+You just need to clone the repository as a submodule:
+
+```bash
+# In your base project directory, run the following command
+git submodule add https://github.com/HamzaHassanain/hamza-html-builder.git ./submodules/html-builder
+```
+
+Then in your project's CMakeLists.txt, include the submodule:
+
+```cmake
+# Your project's CMakeLists.txt
+cmake_minimum_required(VERSION 3.10)
+project(my_project)
+
+# This block checks for Git and initializes submodules recursively
+
+
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+
+    # Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    option(GIT_SUBMODULE_UPDATE_LATEST "Update submodules to latest remote commits" ON)
+
+
+    if(GIT_SUBMODULE)
+        message(STATUS "Initializing and updating submodules...")
+
+        # First, initialize submodules if they don't exist
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE GIT_SUBMOD_INIT_RESULT)
+        if(NOT GIT_SUBMOD_INIT_RESULT EQUAL "0")
+            message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_INIT_RESULT}, please checkout submodules")
+        endif()
+
+        # If enabled, update submodules to latest remote commits
+        if(GIT_SUBMODULE_UPDATE_LATEST)
+            message(STATUS "Updating submodules to latest remote commits...")
+            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --remote --recursive
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            RESULT_VARIABLE GIT_SUBMOD_UPDATE_RESULT)
+            if(NOT GIT_SUBMOD_UPDATE_RESULT EQUAL "0")
+                message(WARNING "git submodule update --remote --recursive failed with ${GIT_SUBMOD_UPDATE_RESULT}, continuing with current submodule versions")
+            else()
+                message(STATUS "Submodules updated to latest versions successfully")
+            endif()
+        endif()
+    endif()
+endif()
+
+
+# Add the submodule
+add_subdirectory(submodules/html-builder)
+
+# Include directories for the library headers (this will also suppress warnings from headers)
+target_include_directories(my_project SYSTEM PRIVATE submodules/html-builder/include)
+
+# Add additional compiler flags to suppress warnings from library headers
+target_compile_options(my_project PRIVATE -Wno-comment -Wno-overloaded-virtual -Wno-reorder)
+
+# Link against the main library
+# The library's CMakeLists.txt handles linking all dependencies automatically
+target_link_libraries(my_project html_builder)
+```
+
+Then in your cpp file, include the http library header:
+
+```cpp
+#include "submodules/html-builder/html-builder.hpp"
+```
 
 ## Features
 
@@ -34,10 +109,10 @@ The HTML Builder is a C++ library designed to simplify the creation and manipula
 ## Quick Start
 
 ```cpp
-#include "html-builder-lib.hpp"
+#include "html-builder.hpp"
 #include <iostream>
 
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 int main() {
     // Create a basic HTML structure
@@ -66,13 +141,13 @@ int main() {
 
 ## API Documentation
 
-### Namespace: hamza_html_builder
+### Namespace: hh_html_builder
 
-All classes and functions are contained within the `hamza_html_builder` namespace.
+All classes and functions are contained within the `hh_html_builder` namespace.
 
 ### Classes
 
-#### hamza_html_builder::element
+#### hh_html_builder::element
 
 ```cpp
 #include "element.hpp"
@@ -101,7 +176,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
   std::string get_attribute(const std::string &key) const    // — Get specific attribute value
 ```
 
-#### hamza_html_builder::self_closing_element
+#### hh_html_builder::self_closing_element
 
 ```cpp
 #include "self_closing_element.hpp"
@@ -121,7 +196,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
   virtual std::string get_text_content() const override      // — Returns empty string
 ```
 
-#### hamza_html_builder::doctype_element
+#### hh_html_builder::doctype_element
 
 ```cpp
 #include "doctype_element.hpp"
@@ -134,7 +209,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
   std::string to_string() const override                     // — Generate DOCTYPE declaration (<!DOCTYPE ...>)
 ```
 
-#### hamza_html_builder::document
+#### hh_html_builder::document
 
 ```cpp
 #include "document.hpp"
@@ -150,7 +225,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
 
 ### Functions
 
-#### hamza_html_builder::parse_html_string
+#### hh_html_builder::parse_html_string
 
 ```cpp
 #include "document_parser.hpp"
@@ -163,7 +238,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
   std::vector<std::shared_ptr<element>> parse_html_string(std::string &html)  // — Parse HTML into element objects
 ```
 
-#### hamza_html_builder::parse_html_with_params
+#### hh_html_builder::parse_html_with_params
 
 ```cpp
 #include "document_parser.hpp"
@@ -181,7 +256,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 // Create a simple div with text
 element div("div", "Hello World");
@@ -200,7 +275,7 @@ parent.add_child(std::make_shared<element>("p", "Paragraph text"));
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 // Create an image element
 std::map<std::string, std::string> img_attrs = {
@@ -217,7 +292,7 @@ auto br = std::make_shared<self_closing_element>("br");
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 // Create element with template parameters
 element container("div");
@@ -241,7 +316,7 @@ std::string html = container.to_string();
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 // Create a complete HTML document
 document doc("html");
@@ -266,7 +341,7 @@ std::string html = doc.to_string();
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 std::string html = "<div><h1>Title</h1><p>Content</p></div>";
 auto elements = parse_html_string(html);
@@ -281,7 +356,7 @@ for (const auto& elem : elements) {
 
 ```cpp
 #include "html-builder-lib.hpp"
-using namespace hamza_html_builder;
+using namespace hh_html_builder;
 
 // Create original element
 element original("div");

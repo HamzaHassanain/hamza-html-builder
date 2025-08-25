@@ -7,7 +7,7 @@
 #include "element.hpp"
 #include "self_closing_element.hpp"
 
-namespace hamza_html_builder
+namespace hh_html_builder
 {
     /**
      * @brief Parse HTML string into a collection of element objects.

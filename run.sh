@@ -3,7 +3,7 @@
 # Exit on any error
 set -e
 
-echo "Building Hamza HTML Builder..."
+echo "Building hh HTML Builder..."
 
 # Ensure we're in the project root directory
 cd "$(dirname "$0")"

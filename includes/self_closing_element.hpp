@@ -2,7 +2,7 @@
 
 #include "element.hpp"
 
-namespace hamza_html_builder
+namespace hh_html_builder
 {
     /**
      * @brief Specialized element class for HTML self-closing (void) elements.
