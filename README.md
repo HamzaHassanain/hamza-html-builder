@@ -34,9 +34,9 @@ The HTML Builder is a C++ library designed to simplify the creation and manipula
 ## Quick Start
 
 ```cpp
+#include "html-builder-lib.hpp"
 #include <iostream>
-#include <element.hpp>
-#include <document_parser.hpp>
+
 using namespace hamza_html_builder;
 
 int main() {
@@ -180,7 +180,7 @@ All classes and functions are contained within the `hamza_html_builder` namespac
 ### Basic Element Creation
 
 ```cpp
-#include <element.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 // Create a simple div with text
@@ -199,7 +199,7 @@ parent.add_child(std::make_shared<element>("p", "Paragraph text"));
 ### Self-Closing Elements
 
 ```cpp
-#include <self_closing_element.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 // Create an image element
@@ -216,7 +216,7 @@ auto br = std::make_shared<self_closing_element>("br");
 ### Template Parameter Substitution
 
 ```cpp
-#include <element.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 // Create element with template parameters
@@ -240,7 +240,7 @@ std::string html = container.to_string();
 ### Document Creation
 
 ```cpp
-#include <document.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 // Create a complete HTML document
@@ -265,7 +265,7 @@ std::string html = doc.to_string();
 ### HTML Parsing
 
 ```cpp
-#include <document_parser.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 std::string html = "<div><h1>Title</h1><p>Content</p></div>";
@@ -280,7 +280,7 @@ for (const auto& elem : elements) {
 ### Element Copying
 
 ```cpp
-#include <element.hpp>
+#include "html-builder-lib.hpp"
 using namespace hamza_html_builder;
 
 // Create original element

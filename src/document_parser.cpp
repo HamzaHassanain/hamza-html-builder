@@ -1,8 +1,5 @@
-#include <document_parser.hpp>
 
-#include <element.hpp>
-#include <doctype_element.hpp>
-#include <self_closing_element.hpp>
+
 #include <iostream>
 #include <algorithm>
 #include <map>
@@ -15,6 +12,10 @@
 #include <thread>
 #include <chrono>
 
+#include "../includes/document_parser.hpp"
+#include "../includes/element.hpp"
+#include "../includes/doctype_element.hpp"
+#include "../includes/self_closing_element.hpp"
 namespace hamza_html_builder
 {
     /**

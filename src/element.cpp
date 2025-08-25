@@ -1,7 +1,9 @@
-#include <element.hpp>
 #include <stdexcept>
 #include <iostream>
-#include <document_parser.hpp>
+
+#include "../includes/document_parser.hpp"
+#include "../includes/element.hpp"
+
 namespace hamza_html_builder
 {
     element::element() : tag("text") {}
