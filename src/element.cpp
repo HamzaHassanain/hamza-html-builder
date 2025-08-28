@@ -6,7 +6,7 @@
 
 namespace hh_html_builder
 {
-    element::element() : tag("text") {}
+    element::element() : tag("") {}
 
     element::element(const std::string &tag) : tag(tag) {}
 
@@ -61,26 +61,26 @@ namespace hh_html_builder
 
     std::string element::to_string() const
     {
+        std::string result = tag.empty() ? "" : ("<" + tag);
 
-        std::string result = "<" + tag;
-
-        for (const auto &attr : attributes)
-        {
-            if (attr.second.empty())
+        if (!tag.empty())
+            for (const auto &attr : attributes)
             {
-                result += " " + attr.first;
+                if (attr.second.empty())
+                {
+                    result += " " + attr.first;
+                }
+                else
+                {
+                    result += " " + attr.first + "=\"" + attr.second + "\"";
+                }
             }
-            else
-            {
-                result += " " + attr.first + "=\"" + attr.second + "\"";
-            }
-        }
-        result += ">" + text_content;
+        result += (tag.empty() ? "" : ">") + text_content;
         for (const auto &child : children)
         {
             result += child->to_string();
         }
-        result += "</" + tag + ">\n";
+        result += tag.empty() ? "" : ("</" + tag + ">\n");
         return result;
     }
 

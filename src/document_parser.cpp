@@ -355,7 +355,7 @@ namespace hh_html_builder
                     std::string text_content = html.substr(pos, end - pos);
                     if (!text_content.empty() && text_content.find_first_not_of(" \t\n\r") != std::string::npos)
                     {
-                        auto text_element = std::make_shared<element>("text", text_content);
+                        auto text_element = std::make_shared<element>("", text_content);
                         result.push_back(text_element);
                     }
                 }
@@ -368,7 +368,7 @@ namespace hh_html_builder
                 std::string text_content = html.substr(pos, tag_start - pos);
                 if (!text_content.empty() && text_content.find_first_not_of(" \t\n\r") != std::string::npos)
                 {
-                    auto text_element = std::make_shared<element>("text", text_content);
+                    auto text_element = std::make_shared<element>("", text_content);
                     result.push_back(text_element);
                 }
             }
