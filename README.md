@@ -1,4 +1,4 @@
-# hh HTML Builder
+# HTML Builder
 
 A C++ library for programmatically building and manipulating HTML documents with support for template parameter substitution and HTML parsing.
 
